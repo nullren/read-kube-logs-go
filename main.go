@@ -5,23 +5,28 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
+	"path/filepath"
 
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-var kubeconfig = flag.String("c", "/etc/kube/config", "location of kubeconfig to read")
-var namespace = flag.String("n", "default", "namespace of the pod")
-var pod = flag.String("p", "", "pod name")
-
 func main() {
+	var kubeconfig = flag.String("kubeconfig", filepath.Join(os.Getenv("HOME"), ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	var kubecontext = flag.String("context", "default", "context to use")
+	var namespace = flag.String("namespace", "default", "namespace of the pod")
+	var pod = flag.String("pod", "", "pod name")
 	flag.Parse()
 
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: *kubeconfig},
+		&clientcmd.ConfigOverrides{CurrentContext: *kubecontext}).ClientConfig()
 	if err != nil {
 		panic(err)
 	}
+
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err)
