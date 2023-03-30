@@ -16,6 +16,8 @@ var namespace = flag.String("n", "default", "namespace of the pod")
 var pod = flag.String("p", "", "pod name")
 
 func main() {
+	flag.Parse()
+
 	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		panic(err)
