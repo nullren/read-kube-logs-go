@@ -18,6 +18,7 @@ func main() {
 	var kubecontext = flag.String("context", "default", "context to use")
 	var namespace = flag.String("namespace", "default", "namespace of the pod")
 	var pod = flag.String("pod", "", "pod name")
+	var container = flag.String("container", "", "container name")
 	flag.Parse()
 
 	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
@@ -34,7 +35,7 @@ func main() {
 
 	ctx := context.Background()
 
-	req := clientset.CoreV1().Pods(*namespace).GetLogs(*pod, &v1.PodLogOptions{})
+	req := clientset.CoreV1().Pods(*namespace).GetLogs(*pod, &v1.PodLogOptions{Container: *container})
 	podLogs, err := req.Stream(ctx)
 	if err != nil {
 		panic(err)
